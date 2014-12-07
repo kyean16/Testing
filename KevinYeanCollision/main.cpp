@@ -39,6 +39,10 @@
 
 using namespace std;
 
+static float theta = -30; //z axis
+static float phi = 30; //x-z plane
+static float distancef = -30;
+
 //Returns a random float from 0 to < 1
 float randomFloat() {
 	return (float)rand() / ((float)RAND_MAX + 1);
@@ -394,18 +398,6 @@ void potentialBallBallCollisions(vector<BallPair> &potentialCollisions,
 								 vector<Ball*> &balls, Octree* octree) {
 	//Fast method
 	octree->potentialBallBallCollisions(potentialCollisions);
-	
-	/*
-	//Slow method
-	for(unsigned int i = 0; i < balls.size(); i++) {
-		for(unsigned int j = i + 1; j < balls.size(); j++) {
-			BallPair bp;
-			bp.ball1 = balls[i];
-			bp.ball2 = balls[j];
-			potentialCollisions.push_back(bp);
-		}
-	}
-	*/
 }
 
 //Puts potential ball-wall collisions in potentialCollisions.  It must return
@@ -414,20 +406,6 @@ void potentialBallWallCollisions(vector<BallWallPair> &potentialCollisions,
 								 vector<Ball*> &balls, Octree* octree) {
 	//Fast method
 	octree->potentialBallWallCollisions(potentialCollisions);
-	
-	/*
-	//Slow method
-	Wall walls[] =
-		{WALL_LEFT, WALL_RIGHT, WALL_FAR, WALL_NEAR, WALL_TOP, WALL_BOTTOM};
-	for(unsigned int i = 0; i < balls.size(); i++) {
-		for(int j = 0; j < 6; j++) {
-			BallWallPair bwp;
-			bwp.ball = balls[i];
-			bwp.wall = walls[j];
-			potentialCollisions.push_back(bwp);
-		}
-	}
-	*/
 }
 
 //Moves all of the balls by their velocity times dt
@@ -579,6 +557,14 @@ void handleResize(int w, int h) {
 	gluPerspective(45.0, (float)w / (float)h, 1.0, 200.0);
 }
 
+//Camera
+void setCamera(void)
+{
+	glTranslatef(0.0f, 0.0f, distancef);
+	glRotatef(phi,1.0,0.0,0.0);
+	glRotatef(theta, 0.0,1.0,0.0);
+}
+
 void drawScene() {
 
 	//ALPHA
@@ -588,7 +574,6 @@ void drawScene() {
 	
 	glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-	glTranslatef(0.0f, 0.0f, -25.0f);
 	
 	GLfloat ambientColor[] = {0.5f, 0.5f, 0.5f, 1.0f};
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambientColor);
@@ -597,6 +582,9 @@ void drawScene() {
 	GLfloat lightPos[] = {1.0f, 0.2f, 0.0f, 0.0f};
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, lightColor);
 	glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+
+	//Camera set up
+    setCamera();
 	
 	//Draw the top and the bottom of the box
 	glShadeModel(GL_FLAT);
@@ -615,11 +603,30 @@ void drawScene() {
 	glVertex3f(-BOX_SIZE / 2, BOX_SIZE / 2, -BOX_SIZE / 2);
 	glVertex3f(BOX_SIZE / 2, BOX_SIZE / 2, -BOX_SIZE / 2);
 
-	// //Front
+	glColor4f(1.f, 0.5f, 0.5f,0.3);
+	//Front
 	glVertex3f(-BOX_SIZE / 2, BOX_SIZE / 2, BOX_SIZE / 2);
 	glVertex3f(BOX_SIZE / 2, BOX_SIZE / 2, BOX_SIZE / 2);
 	glVertex3f(BOX_SIZE / 2, -BOX_SIZE / 2,BOX_SIZE / 2);
 	glVertex3f(-BOX_SIZE / 2, -BOX_SIZE / 2, BOX_SIZE / 2);
+
+	//Back
+	glVertex3f(BOX_SIZE / 2, BOX_SIZE / 2, -BOX_SIZE / 2);
+	glVertex3f(-BOX_SIZE / 2, BOX_SIZE / 2, -BOX_SIZE / 2);
+	glVertex3f(-BOX_SIZE / 2, -BOX_SIZE / 2,-BOX_SIZE / 2);
+	glVertex3f(BOX_SIZE / 2, -BOX_SIZE / 2, -BOX_SIZE / 2);
+
+	//Left
+	glVertex3f(-BOX_SIZE / 2, BOX_SIZE / 2, BOX_SIZE / 2);
+	glVertex3f(-BOX_SIZE / 2, -BOX_SIZE / 2, BOX_SIZE / 2);
+	glVertex3f(-BOX_SIZE / 2, -BOX_SIZE / 2,-BOX_SIZE / 2);
+	glVertex3f(-BOX_SIZE / 2, BOX_SIZE / 2, -BOX_SIZE / 2);
+
+	//Right
+	glVertex3f(BOX_SIZE / 2, BOX_SIZE / 2, BOX_SIZE / 2);
+	glVertex3f(BOX_SIZE / 2, -BOX_SIZE / 2, BOX_SIZE / 2);
+	glVertex3f(BOX_SIZE / 2, -BOX_SIZE / 2,-BOX_SIZE / 2);
+	glVertex3f(BOX_SIZE / 2, BOX_SIZE / 2, -BOX_SIZE / 2);
 
 	glEnd();
 	glShadeModel(GL_SMOOTH);
@@ -637,6 +644,13 @@ void drawScene() {
 	glutSwapBuffers();
 }
 
+//Called every TIMER_MS milliseconds
+void update(int value) {
+	advance(_balls, _octree, (float)TIMER_MS / 1000.0f, _timeUntilUpdate);
+	glutPostRedisplay();
+	glutTimerFunc(TIMER_MS, update, 0);
+}
+
 void handleKeypress(unsigned char key, int x, int y) {
 	switch (key) {
 		case 27: //Escape key
@@ -644,7 +658,7 @@ void handleKeypress(unsigned char key, int x, int y) {
 			exit(0);
 		case ' ':
 			//Add 20 balls with a random position, velocity, radius, and color
-			for(int i = 0; i < 20; i++) {
+			for(int i = 0; i < 5; i++) {
 				Ball* ball = new Ball();
 				ball->pos = Vec3f(8 * randomFloat() - 4,
 								  8 * randomFloat() - 4,
@@ -663,14 +677,33 @@ void handleKeypress(unsigned char key, int x, int y) {
 		case 'q': case'Q':
 			exit(0);
 			break;
+		case '4'://Left
+			theta +=5;
+			glutPostRedisplay();
+			break;
+		case'6'://Right
+			theta -=5;
+			glutPostRedisplay();
+			break;
+		case '2': //Down
+			phi-=5;
+			//Block
+			if (phi>90.0)
+				phi = 90.0;
+			else if (phi < -90.0)
+				phi =-90.0;
+			glutPostRedisplay();
+			break;
+		case '8': //Down
+			phi+=5;
+			//Block
+			if (phi>90.0)
+				phi = 90.0;
+			else if (phi < -90.0)
+				phi =-90.0;
+			glutPostRedisplay();
+			break;
 	}
-}
-
-//Called every TIMER_MS milliseconds
-void update(int value) {
-	advance(_balls, _octree, (float)TIMER_MS / 1000.0f, _timeUntilUpdate);
-	glutPostRedisplay();
-	glutTimerFunc(TIMER_MS, update, 0);
 }
 
 int main(int argc, char** argv) {
