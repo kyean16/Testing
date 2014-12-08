@@ -63,3 +63,46 @@ void searches::bubbleSort(vector <int> toDo)
 		cout<<endl;
 	}
 }
+
+void searches::binarySearch(int key, int size)
+{
+	for(int i = 0 ; i <size ; i++)
+	{
+		fee.push_back(i+1);
+	}
+	int start = 0;
+	int end = size-1;
+	int currentSize= end - start;
+	int middle = (end-start)/2;
+	cout<<"From " << start+1 << " to " << end+1 << endl;
+	while(currentSize > 2 && key != fee[middle])
+	{
+		if(key < fee[middle]) //Check if less
+		{
+			start = start;
+			end = middle;
+			currentSize = end-start;
+			middle = (end-start)/2+start;
+			cout<<"From " << start+1 << " to " << end+1 << endl;
+		}
+		else if(key > fee[middle]) //Check if more
+		{
+			start = middle;
+			end = end;
+			currentSize = end-start;
+			middle = (end-start)/2+start;
+			cout<<"From " << start+1 << " to " << end+1 << endl;
+		}
+	}
+	if(currentSize <= 2)
+	{
+		if(key == fee[start] || key == fee[end])
+		{
+			cout<<"Found " << key <<endl;
+		}	
+	}
+	if(key == fee[middle])
+	{
+		cout<<"Found " << key <<endl;
+	}
+}
