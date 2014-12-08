@@ -9,7 +9,7 @@ int main()
 	recursion One;
 	//cout<< "Hello welcome to recursion fun!" << endl;
 	//cout<<"Insert Number for print from your number to 0 : ";
-	One.towerOfHanoi(1,"From","Intermediate","Destination");
+	One.towerOfHanoi(64,"Origin","Intermediate","Destination");
 	cout<<endl;
 	return 0;
 }
