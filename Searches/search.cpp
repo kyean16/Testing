@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 #include "search.h"
 
 using namespace std;
@@ -16,6 +17,14 @@ searches::searches()
 	foo.push_back(8);
 	foo.push_back(9);
 	foo.push_back(1);
+
+	fuu.push_back(7);
+	fuu.push_back(6);
+    fuu.push_back(7);
+	fuu.push_back(7);
+	fuu.push_back(6);
+    fuu.push_back(7);
+	fuu.push_back(6);
 }
 
 void searches::selectionSort(vector <int> toDo)
@@ -63,7 +72,8 @@ void searches::bubbleSort(vector <int> toDo)
 		cout<<endl;
 	}
 }
-
+//Divede and Conquer, split the program into different set of problems of the same type
+//Solve independtly, combine those solutions.
 void searches::binarySearch(int key, int size)
 {
 	for(int i = 0 ; i <size ; i++)
@@ -106,3 +116,93 @@ void searches::binarySearch(int key, int size)
 		cout<<"Found " << key <<endl;
 	}
 }
+
+//Mergesort
+vector<int> searches::mergeSort(vector<int>list)
+{
+	for(int i = 0 ; i < list.size(); i++)
+	{
+		cout << list[i] << " ";
+	}
+	cout<<endl;
+	int size = list.size();
+	int middle = list.size()/2;
+	vector<int> left;
+	vector<int> right;
+	if(size > 1) //Do as long as item are bigger than one;
+	{
+		//Left
+		for(int i = 0 ; i < middle; i++)
+		{
+			left.push_back(list[i]);
+		}
+		left = mergeSort(left);
+
+		//Right
+		for(int i = middle ; i < list.size(); i++)
+		{
+			right.push_back(list[i]);
+		}
+
+		right = mergeSort(right);
+	}
+	else
+	{
+		return list;
+	}
+	return merge(left,right);
+}
+
+//Merge
+vector<int> searches::merge(vector<int>left,vector<int>right)
+{
+	vector<int> merged;
+	int l = 0;
+	int r = 0;
+	//compare left less
+	while(l < left.size() && r < right.size())
+	{
+		if(left[l] < right[r])
+		{
+			merged.push_back(left[l]);
+			l++;
+		}
+		else if(left[l] > right[r]) //right is less
+		{
+			merged.push_back(right[r]);
+			r++;
+		}
+		//Equal push left
+		else
+		{
+			merged.push_back(left[l]);
+			l++;
+		}
+	}
+	//If I empty add the rest of b;
+	if(l == left.size())
+	{
+		while(r < right.size())
+		{
+			merged.push_back(right[r]);
+			r++;	
+		}
+	}
+	//If B empty add the rest of i;
+	else if(r == right.size())
+	{
+		while(l < left.size())
+		{
+			merged.push_back(left[l]);
+			l++;	
+		}
+	}
+	for(int i = 0 ; i < merged.size() ; i++)
+	{
+		cout<<merged[i] << " ";
+	}
+	cout<< endl;
+	return merged;
+}
+
+//Catching Errors

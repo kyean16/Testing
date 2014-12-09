@@ -1,5 +1,6 @@
 #include <iostream>
 #include "search.cpp"
+#include <vector>
 
 using namespace std;
 
@@ -10,7 +11,17 @@ int main()
 	//cout<<endl;
 	//test.bubbleSort(test.foo);
 	//cout<<endl;
-	test.binarySearch(503,1000000000);
+	/*for(int i = 0 ; i < test.fuu.size(); i++)
+	{
+		cout<< test.fuu[i] << " ";
+	}
+	cout<<endl;*/
+	vector<int> one = test.mergeSort(test.fuu);
+	/*for(int i = 0 ; i < one.size(); i++)
+	{
+		cout<< one[i] << " ";
+	}
+	cout<<endl;*/
 	//cout <<test.fee.size();
 	return 0;
 }
